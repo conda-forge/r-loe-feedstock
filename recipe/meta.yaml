@@ -1,5 +1,4 @@
 {% set version = '1.1' %}
-
 {% set posix = 'm2-' if win else '' %}
 {% set native = 'm2w64-' if win else '' %}
 
@@ -8,10 +7,9 @@ package:
   version: {{ version|replace("-", "_") }}
 
 source:
-  fn: loe_{{ version }}.tar.gz
   url:
-    - https://cran.r-project.org/src/contrib/loe_{{ version }}.tar.gz
-    - https://cran.r-project.org/src/contrib/Archive/loe/loe_{{ version }}.tar.gz
+    - {{ cran_mirror }}/src/contrib/loe_{{ version }}.tar.gz
+    - {{ cran_mirror }}/src/contrib/Archive/loe/loe_{{ version }}.tar.gz
   sha256: cc100c98bee78f6d11bc6227c8585bdc8bb7d55e4bf69ec4b16ca7d7ddbb26d8
 
 build:
@@ -20,19 +18,23 @@ build:
   rpaths:
     - lib/R/lib/
     - lib/
-  skip: true  # [win32]
 
 requirements:
   build:
-    - posix                # [win]
-    - {{ compiler('c') }}        # [unix]
-    - {{ compiler('m2w64_c') }}  # [win]
+    - {{ compiler('c') }}              # [not win]
+    - {{ compiler('m2w64_c') }}        # [win]
+    - {{ posix }}filesystem        # [win]
+    - {{ posix }}make
+    - {{ posix }}sed               # [win]
+    - {{ posix }}coreutils         # [win]
+    - {{ posix }}zip               # [win]
+    - cross-r-base {{ r_base }}    # [build_platform != target_platform]
   host:
     - r-base
     - r-mass
-
   run:
     - r-base
+    - {{ native }}gcc-libs         # [win]
     - r-mass
 
 test:
@@ -42,16 +44,12 @@ test:
 
 about:
   home: https://CRAN.R-project.org/package=loe
-  license: GPL (>= 2)
+  license: GPL-2.0-or-later
   summary: Local Ordinal embedding (LOE) is one of graph embedding methods for unweighted graphs.
   license_family: GPL3
-  license_file: '{{ environ["PREFIX"] }}/lib/R/share/licenses/GPL-3'
+  license_file:
+    - {{ environ["PREFIX"] }}/lib/R/share/licenses/GPL-3
 
 extra:
   recipe-maintainers:
     - conda-forge/r
-    - cbrueffer
-    - johanneskoester
-    - bgruening
-    - daler
-    - jdblischak
