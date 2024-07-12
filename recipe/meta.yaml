@@ -1,6 +1,5 @@
 {% set version = '1.1' %}
 {% set posix = 'm2-' if win else '' %}
-{% set native = 'm2w64-' if win else '' %}
 
 package:
   name: r-loe
@@ -13,8 +12,7 @@ source:
   sha256: cc100c98bee78f6d11bc6227c8585bdc8bb7d55e4bf69ec4b16ca7d7ddbb26d8
 
 build:
-  merge_build_host: True  # [win]
-  number: 1005
+  number: 1006
   rpaths:
     - lib/R/lib/
     - lib/
@@ -22,7 +20,9 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}              # [not win]
+    - {{ stdlib("c") }}                # [not win]
     - {{ compiler('m2w64_c') }}        # [win]
+    - {{ stdlib("m2w64_c") }}          # [win]
     - {{ posix }}filesystem        # [win]
     - {{ posix }}make
     - {{ posix }}sed               # [win]
@@ -34,7 +34,6 @@ requirements:
     - r-mass
   run:
     - r-base
-    - {{ native }}gcc-libs         # [win]
     - r-mass
 
 test:
